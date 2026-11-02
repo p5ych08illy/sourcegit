@@ -69,6 +69,7 @@ internal static class Program
             CheckTreeColumn(repo, window, fixture);
             CheckExternalDiffDoubleClick(repo, window, fixture);
             CheckSelection(repo, window);
+            CheckRepositorySwitch(repo, window, fixture);
             CheckWorkingDirectoryActions(repo, window);
             CheckLiveTranslations(window);
             CheckRowHitTesting(repo, window);
@@ -90,19 +91,19 @@ internal static class Program
         {
             window?.Close();
             repo?.Close();
-            for (var attempt = 0; attempt < 10; attempt++)
+            if (!Path.GetFullPath(fixture).StartsWith(Path.GetFullPath(Path.GetTempPath()), StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Fixture must stay inside the temporary directory");
+            for (var attempt = 0; attempt < 20; attempt++)
             {
                 try
                 {
-                    if (!Path.GetFullPath(fixture).StartsWith(Path.GetFullPath(Path.GetTempPath()), StringComparison.OrdinalIgnoreCase))
-                        throw new InvalidOperationException("Fixture must stay inside the temporary directory");
                     foreach (var file in Directory.EnumerateFiles(fixture, "*", SearchOption.AllDirectories))
                         File.SetAttributes(file, FileAttributes.Normal);
                     Directory.Delete(fixture, true);
                     break;
                 }
-                catch (IOException) when (attempt < 9) { Thread.Sleep(50); }
-                catch (UnauthorizedAccessException) when (attempt < 9) { Thread.Sleep(50); }
+                catch (IOException) when (attempt < 19) { Thread.Sleep(50); }
+                catch (UnauthorizedAccessException) when (attempt < 19) { Thread.Sleep(50); }
             }
         }
     }
@@ -866,6 +867,76 @@ internal static class Program
         vm.UpdateWorkingDirectory([new Change { Path = "tracked.txt", WorkTree = ChangeState.Modified }]);
         list.SelectedItem = vm.WorkingDirectory;
         PumpUntil(() => vm.IsWorkingDirectorySelected);
+    }
+
+    private static void CheckRepositorySwitch(Repository repo, Window window, string fixture)
+    {
+        var otherPath = Path.Combine(fixture, ".git", "other-repository");
+        Directory.CreateDirectory(otherPath);
+        Git(otherPath, "init -b main");
+        Git(otherPath, "config user.name Test");
+        Git(otherPath, "config user.email test@example.com");
+        Git(otherPath, "commit --allow-empty -m other");
+        File.WriteAllText(Path.Combine(otherPath, "other-staged.txt"), "staged\n");
+        Git(otherPath, "add other-staged.txt");
+        File.WriteAllText(Path.Combine(otherPath, "other-unstaged.txt"), "unstaged\n");
+
+        var other = new Repository(false, otherPath, Path.Combine(otherPath, ".git"));
+        var originalContent = window.Content;
+        var originalViewIndex = repo.SelectedViewIndex;
+        var originalDraft = repo.WorkingCopy.CommitMessage;
+        try
+        {
+            other.Open();
+            PumpUntil(() => !other.Histories.IsLoading && other.LocalChangesCount == 2);
+            repo.Histories.IsWorkingDirectorySelected = true;
+            other.Histories.IsWorkingDirectorySelected = true;
+            repo.WorkingCopy.CommitMessage = "First repository draft";
+            other.WorkingCopy.CommitMessage = "Other repository draft";
+            var firstPage = new LauncherPage(new RepositoryNode { Id = repo.FullPath }, repo);
+            var otherPage = new LauncherPage(new RepositoryNode { Id = other.FullPath }, other);
+            var page = new Views.LauncherPage { DataContext = firstPage };
+            window.Content = page;
+            PumpUntil(() => window.GetVisualDescendants().OfType<Views.WorkingCopy>().Any());
+            var repositoryView = window.GetVisualDescendants().OfType<Views.Repository>().Single();
+            var edited = new HashSet<Repository>();
+
+            foreach (var firstIndex in new[] { 0, 1 })
+            foreach (var otherIndex in new[] { 0, 1 })
+            {
+                repo.SelectedViewIndex = firstIndex;
+                other.SelectedViewIndex = otherIndex;
+                foreach (var target in new[] { otherPage, firstPage })
+                {
+                    page.DataContext = target;
+                    PumpUntil(() => window.GetVisualDescendants().OfType<Views.WorkingCopy>().Count() == 1);
+                    var current = (Repository)target.Data;
+                    var editor = window.GetVisualDescendants().OfType<Views.WorkingCopy>().Single();
+                    var variant = $"{firstIndex}/{otherIndex}, {current.FullPath}";
+                    Check(ReferenceEquals(repositoryView, window.GetVisualDescendants().OfType<Views.Repository>().Single()), $"repository view is recycled: {variant}");
+                    Check(ReferenceEquals(editor.DataContext, current.WorkingCopy), $"switch refreshes the working copy context: {variant}");
+                    Check(ReferenceEquals(editor.FindControl<Views.ChangeCollectionView>("UnstagedChangesView").Changes, current.WorkingCopy.VisibleUnstaged), $"switch shows current unstaged files: {variant}");
+                    Check(ReferenceEquals(editor.FindControl<Views.ChangeCollectionView>("StagedChangesView").Changes, current.WorkingCopy.VisibleStaged), $"switch shows current staged files: {variant}");
+                    var message = editor.GetVisualDescendants().OfType<Views.CommitMessageToolBox>().Single();
+                    Check(message.CommitMessage == current.WorkingCopy.CommitMessage, $"switch restores current draft: {variant}");
+                    if (edited.Add(current))
+                    {
+                        message.CommitMessage += " edited";
+                        Dispatcher.UIThread.RunJobs();
+                        Check(current.WorkingCopy.CommitMessage == message.CommitMessage, $"editor updates its own repository draft: {variant}");
+                    }
+                }
+            }
+            Check(repo.WorkingCopy.CommitMessage == "First repository draft edited" && other.WorkingCopy.CommitMessage == "Other repository draft edited", "switching keeps repository drafts separate");
+        }
+        finally
+        {
+            window.Content = originalContent;
+            repo.SelectedViewIndex = originalViewIndex;
+            repo.WorkingCopy.CommitMessage = originalDraft;
+            other.Close();
+            Dispatcher.UIThread.RunJobs();
+        }
     }
 
     private static void CheckWorkingDirectoryActions(Repository repo, Window window)
