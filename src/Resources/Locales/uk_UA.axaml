@@ -415,6 +415,11 @@
   <x:String x:Key="Text.Preferences.General" xml:space="preserve">ЗАГАЛЬНІ</x:String>
   <x:String x:Key="Text.Preferences.General.Check4UpdatesOnStartup" xml:space="preserve">Перевіряти оновлення при запуску</x:String>
   <x:String x:Key="Text.Preferences.General.DateFormat" xml:space="preserve">Формат дати</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Install" xml:space="preserve">Add Explorer menu</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Installed" xml:space="preserve">Added "Open in SourceGit" to Explorer for the current user. On Windows 11, look under "Show more options".</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Remove" xml:space="preserve">Remove Explorer menu</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Removed" xml:space="preserve">Removed the SourceGit Explorer menu for the current user.</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Tip" xml:space="preserve">Add or remove "Open in SourceGit" for files, folders, and folder backgrounds. On Windows 11, it appears under "Show more options".</x:String>
   <x:String x:Key="Text.Preferences.General.Locale" xml:space="preserve">Мова</x:String>
   <x:String x:Key="Text.Preferences.General.MaxHistoryCommits" xml:space="preserve">Кількість комітів в історії</x:String>
   <x:String x:Key="Text.Preferences.General.ShowTagsInGraph" xml:space="preserve">Показувати теги в графі комітів</x:String>
