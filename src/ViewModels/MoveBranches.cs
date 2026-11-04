@@ -107,7 +107,7 @@ namespace SourceGit.ViewModels
 
                 succ = await new Commands.Branch(_repo.FullPath, branch.Name)
                     .Use(log)
-                    .RenameAsync(newName);
+                    .RenameAsync(newName, false);
 
                 if (!succ)
                     break;
@@ -124,10 +124,6 @@ namespace SourceGit.ViewModels
             if (_moves.Count == 0)
                 return "Nothing to move!";
 
-            var moving = new HashSet<Models.Branch>();
-            foreach (var (branch, _) in _moves)
-                moving.Add(branch);
-
             for (var i = 0; i < _moves.Count; i++)
             {
                 var name = _moves[i].Value;
@@ -136,7 +132,8 @@ namespace SourceGit.ViewModels
 
                 foreach (var other in _repo.Branches)
                 {
-                    if (!other.IsLocal || moving.Contains(other))
+                    // Renames run sequentially, so another moving branch still occupies its original name.
+                    if (!other.IsLocal || ReferenceEquals(other, _moves[i].Key))
                         continue;
 
                     if (Conflicts(name, other.Name))
