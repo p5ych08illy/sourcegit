@@ -706,6 +706,11 @@
   <x:String x:Key="Text.Preferences.General.Check4UpdatesOnStartup" xml:space="preserve">Check for updates on startup</x:String>
   <x:String x:Key="Text.Preferences.General.DateFormat" xml:space="preserve">Date Format</x:String>
   <x:String x:Key="Text.Preferences.General.EnableCompactFolders" xml:space="preserve">Enable compact folders in changes tree</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Install" xml:space="preserve">Add Explorer menu</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Installed" xml:space="preserve">Added "Open in SourceGit" to Explorer for the current user. On Windows 11, look under "Show more options".</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Remove" xml:space="preserve">Remove Explorer menu</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Removed" xml:space="preserve">Removed the SourceGit Explorer menu for the current user.</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Tip" xml:space="preserve">Add or remove "Open in SourceGit" for files, folders, and folder backgrounds. On Windows 11, it appears under "Show more options".</x:String>
   <x:String x:Key="Text.Preferences.General.Locale" xml:space="preserve">Language</x:String>
   <x:String x:Key="Text.Preferences.General.MaxHistoryCommits" xml:space="preserve">History Commits</x:String>
   <x:String x:Key="Text.Preferences.General.ShowChangesPageByDefault" xml:space="preserve">Show `LOCAL CHANGES` page by default</x:String>

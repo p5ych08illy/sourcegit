@@ -225,6 +225,40 @@ namespace SourceGit.Views
             preferences.Save();
         }
 
+        private async void InstallWindowsContextMenu(object _, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            if (!OperatingSystem.IsWindows())
+                return;
+
+            try
+            {
+                Native.WindowsContextMenu.Install();
+                await new Alert().ShowAsync(this, App.Text("Preferences.General.ExplorerMenu.Installed"), false);
+            }
+            catch (Exception ex)
+            {
+                await new Alert().ShowAsync(this, ex.Message, true);
+            }
+        }
+
+        private async void RemoveWindowsContextMenu(object _, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            if (!OperatingSystem.IsWindows())
+                return;
+
+            try
+            {
+                Native.WindowsContextMenu.Remove();
+                await new Alert().ShowAsync(this, App.Text("Preferences.General.ExplorerMenu.Removed"), false);
+            }
+            catch (Exception ex)
+            {
+                await new Alert().ShowAsync(this, ex.Message, true);
+            }
+        }
+
         private async void SelectThemeOverrideFile(object _, RoutedEventArgs e)
         {
             var options = new FilePickerOpenOptions()

@@ -73,6 +73,9 @@ namespace SourceGit.ViewModels
 
         public bool TryOpenRepositoryFromPath(string repo)
         {
+            if (!string.IsNullOrEmpty(repo) && File.Exists(repo))
+                repo = Path.GetDirectoryName(Path.GetFullPath(repo));
+
             if (!string.IsNullOrEmpty(repo) && Directory.Exists(repo))
             {
                 var isBare = new Commands.IsBareRepository(repo).GetResult();

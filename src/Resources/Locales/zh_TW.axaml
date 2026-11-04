@@ -700,6 +700,11 @@
   <x:String x:Key="Text.Preferences.General.Check4UpdatesOnStartup" xml:space="preserve">啟動時檢查軟體更新</x:String>
   <x:String x:Key="Text.Preferences.General.DateFormat" xml:space="preserve">日期時間格式</x:String>
   <x:String x:Key="Text.Preferences.General.EnableCompactFolders" xml:space="preserve">在樹狀變更目錄中啟用密集資料夾模式</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Install" xml:space="preserve">Add Explorer menu</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Installed" xml:space="preserve">Added "Open in SourceGit" to Explorer for the current user. On Windows 11, look under "Show more options".</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Remove" xml:space="preserve">Remove Explorer menu</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Removed" xml:space="preserve">Removed the SourceGit Explorer menu for the current user.</x:String>
+  <x:String x:Key="Text.Preferences.General.ExplorerMenu.Tip" xml:space="preserve">Add or remove "Open in SourceGit" for files, folders, and folder backgrounds. On Windows 11, it appears under "Show more options".</x:String>
   <x:String x:Key="Text.Preferences.General.Locale" xml:space="preserve">顯示語言</x:String>
   <x:String x:Key="Text.Preferences.General.MaxHistoryCommits" xml:space="preserve">最大歷史提交數</x:String>
   <x:String x:Key="Text.Preferences.General.ShowChangesPageByDefault" xml:space="preserve">預設顯示 [本機變更] 頁面</x:String>

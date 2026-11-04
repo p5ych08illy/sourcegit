@@ -489,7 +489,7 @@ namespace SourceGit
             if (desktop.Args is { Length: 1 })
             {
                 var arg = desktop.Args[0].Replace('\\', '/').TrimEnd('/').Trim('\"').Trim();
-                if (Directory.Exists(arg))
+                if (Directory.Exists(arg) || File.Exists(arg))
                     startupRepo = arg;
             }
 
