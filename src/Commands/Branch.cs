@@ -26,9 +26,9 @@ namespace SourceGit.Commands
             return await ExecAsync().ConfigureAwait(false);
         }
 
-        public async Task<bool> RenameAsync(string to)
+        public async Task<bool> RenameAsync(string to, bool force = true)
         {
-            Args = $"branch -M {_name} {to}";
+            Args = $"branch {(force ? "-M" : "-m")} {_name} {to}";
             return await ExecAsync().ConfigureAwait(false);
         }
 
