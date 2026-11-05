@@ -64,6 +64,12 @@ internal static class Program
                 Content = new Views.Repository { DataContext = repo } };
             window.Show();
             PumpUntil(() => !repo.Histories.IsLoading && repo.LocalChangesCount == 1);
+            CheckCommitContextMenu(repo, window);
+            if (args.Contains("--context-menu-only"))
+            {
+                Console.WriteLine($"PASS: {_checks} context-menu checks");
+                return;
+            }
             CheckBranchesColumn(repo, window, fixture);
             CheckBranchContext(repo, window);
             CheckTreeColumn(repo, window, fixture);
@@ -937,6 +943,42 @@ internal static class Program
             other.Close();
             Dispatcher.UIThread.RunJobs();
         }
+    }
+
+    private static void CheckCommitContextMenu(Repository repo, Window window)
+    {
+        var list = window.GetVisualDescendants().OfType<Views.HistoriesCommitList>().Single();
+        repo.Histories.SelectedCommits = [repo.Histories.Commits[0]];
+        Dispatcher.UIThread.RunJobs();
+        Check(list.SelectedItems.Count == 1 && list.SelectedItems[0] == repo.Histories.Commits[0], "context-menu check selects the topmost commit");
+
+        ContextMenu opened = null;
+        using var subscription = ContextMenu.OpenedEvent.AddClassHandler<ContextMenu>((menu, _) => opened = menu);
+        list.RaiseEvent(new ContextRequestedEventArgs { RoutedEvent = Control.ContextRequestedEvent });
+        PumpUntil(() => opened?.IsOpen == true);
+        Check(opened.Items.OfType<MenuItem>().Any(x => Equals(x.Header, App.Text("CreateTag"))), "topmost commit opens its normal context menu");
+        opened.Close();
+        opened = null;
+
+        var current = repo.CurrentBranch;
+        var property = typeof(Repository).GetProperty(nameof(Repository.CurrentBranch));
+        try
+        {
+            // History can remain populated while the branch refresh has no current branch.
+            property.SetValue(repo, null);
+            var request = new ContextRequestedEventArgs { RoutedEvent = Control.ContextRequestedEvent };
+            list.RaiseEvent(request);
+            Check(request.Handled && opened == null, "right-click without a current branch is handled without opening a menu or crashing");
+        }
+        finally
+        {
+            property.SetValue(repo, current);
+        }
+
+        list.RaiseEvent(new ContextRequestedEventArgs { RoutedEvent = Control.ContextRequestedEvent });
+        PumpUntil(() => opened?.IsOpen == true);
+        Check(opened.Items.Count > 0, "commit context menu recovers after the current branch is restored");
+        opened.Close();
     }
 
     private static void CheckWorkingDirectoryActions(Repository repo, Window window)

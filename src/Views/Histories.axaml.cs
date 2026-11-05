@@ -1125,7 +1125,7 @@ namespace SourceGit.Views
             else if (selected.Count == 1)
             {
                 var menu = CreateContextMenuForSingleCommit(repo, commits[0]);
-                menu.Open(CommitListContainer);
+                menu?.Open(CommitListContainer);
             }
 
             e.Handled = true;
