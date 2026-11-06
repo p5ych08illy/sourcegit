@@ -78,6 +78,8 @@ namespace SourceGit.ViewModels
 
             if (!string.IsNullOrEmpty(repo) && Directory.Exists(repo))
             {
+                repo = Path.TrimEndingDirectorySeparator(Path.GetFullPath(repo)).Replace('\\', '/');
+
                 var isBare = new Commands.IsBareRepository(repo).GetResult();
                 if (isBare)
                 {
