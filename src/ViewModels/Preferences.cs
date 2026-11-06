@@ -869,6 +869,6 @@ namespace SourceGit.ViewModels
 
         private string _gitDefaultCloneDir = string.Empty;
         private int _shellOrTerminalType = -1;
-        private bool _externalMergeToolBindToDoubleClick = false;
+        private bool _externalMergeToolBindToDoubleClick = true;
     }
 }
